@@ -17,6 +17,15 @@ jobs:
           unzip LIFECARE_Android_Project_20261114.zip -d project
           find project -name settings.gradle -o -name settings.gradle.kts
 
+      - name: Fix Calendar import
+        run: |
+          FILE=$(find project -path '*/app/src/main/java/com/lifecare/daily/MainActivity.java' -print -quit)
+          if [ -z "$FILE" ]; then
+            echo "MainActivity.java not found"
+            exit 1
+          fi
+          sed -i '/^package /a import java.util.Calendar;' "$FILE"
+          
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
