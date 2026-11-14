@@ -14,7 +14,7 @@ jobs:
       - name: Extract Android project
         run: |
           mkdir project
-          unzip LIFECARE_Android_Project_20261114.zip -d project
+          unzip LIFECARE_Android_Project_2.0.zip -d project
           find project -name settings.gradle -o -name settings.gradle.kts
 
       - name: Fix Calendar import
