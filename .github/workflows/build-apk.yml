@@ -17,7 +17,14 @@ jobs:
           unzip LIFECARE_Android_Project_2.0.zip -d project
           find project -name settings.gradle -o -name settings.gradle.kts
 
-      - name: Fix Calendar import
+      - name: Fix Calendar import      - name: Fix Android Build import
+        run: |
+          FILE=$(find project -name 'ReminderScheduler.java' -print -quit)
+          if [ -z "$FILE" ]; then
+            echo "ReminderScheduler.java not found"
+            exit 1
+          fi
+          sed -i '/^package /a import android.os.Build;' "$FILE"
         run: |
           FILE=$(find project -path '*/app/src/main/java/com/lifecare/daily/MainActivity.java' -print -quit)
           if [ -z "$FILE" ]; then
