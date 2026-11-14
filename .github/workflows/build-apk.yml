@@ -15,24 +15,26 @@ jobs:
         run: |
           mkdir project
           unzip LIFECARE_Android_Project_2.0.zip -d project
-          find project -name settings.gradle -o -name settings.gradle.kts
+          find project \( -name settings.gradle -o -name settings.gradle.kts \) -print
 
-      - name: Fix Calendar import      - name: Fix Android Build import
+      - name: Fix Android Build import
         run: |
           FILE=$(find project -name 'ReminderScheduler.java' -print -quit)
           if [ -z "$FILE" ]; then
             echo "ReminderScheduler.java not found"
             exit 1
           fi
-          sed -i '/^package /a import android.os.Build;' "$FILE"
+          grep -q '^import android.os.Build;' "$FILE" || sed -i '/^package /a import android.os.Build;' "$FILE"
+
+      - name: Fix Calendar import
         run: |
           FILE=$(find project -path '*/app/src/main/java/com/lifecare/daily/MainActivity.java' -print -quit)
           if [ -z "$FILE" ]; then
             echo "MainActivity.java not found"
             exit 1
           fi
-          sed -i '/^package /a import java.util.Calendar;' "$FILE"
-          
+          grep -q '^import java.util.Calendar;' "$FILE" || sed -i '/^package /a import java.util.Calendar;' "$FILE"
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -47,7 +49,12 @@ jobs:
       - name: Build APK
         run: |
           cd project
-          PROJECT_DIR=$(dirname "$(find . -name settings.gradle -o -name settings.gradle.kts | head -n 1)")
+          SETTINGS=$(find . \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
+          if [ -z "$SETTINGS" ]; then
+            echo "Gradle settings file not found"
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$SETTINGS")
           cd "$PROJECT_DIR"
           gradle assembleDebug
 
